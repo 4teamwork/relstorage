@@ -297,10 +297,27 @@ class CXOracleConnectionManager(AbstractConnectionManager):
 
         while True:
             try:
-                kw = {'twophase': twophase, 'threaded': True}
+                # cx_Oracle deprecated `twophase` in 5.3 and removed
+                # it in 6.0 in favor of the `internal_name` and
+                # `external_name` parameters. In 5.3, these were both
+                # implicitly set by `twophase` to "cx_Oracle".
+                # According to the docs
+                # (https://docs.oracle.com/cd/E18283_01/appdev.112/e10646/ociaahan.htm),
+                # OCI_ATTR_EXTERNAL_NAME is "the user-friendly global
+                # name stored in sys.props$.value$, where name =
+                # 'GLOBAL_DB_NAME'. It is not guaranteed to be unique
+                # " and OCI_ATTR_INTERNAL_NAME is "the client database
+                # name that is recorded when performing global
+                # transactions. The DBA can use the name to track
+                # transactions"
+                kw = {'threaded': True}
                 conn = cx_Oracle.connect(self._user, self._password, dsn, **kw)
                 cursor = conn.cursor()
                 cursor.arraysize = 64
+                if twophase:
+                    conn.internal_name = 'cx_Oracle'
+                    conn.external_name = 'cx_Oracle'
+
                 if transaction_mode:
                     cursor.execute("SET TRANSACTION %s" % transaction_mode)
                 return conn, cursor
