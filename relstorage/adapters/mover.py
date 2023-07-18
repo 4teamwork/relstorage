@@ -1369,10 +1369,13 @@ class ObjectMover(object):
                 offset = 1 # Oracle still uses 1-based indexing.
                 for _i in xrange(maxsize / write_chunk_size):
                     write_chunk = f.read(write_chunk_size)
-                    if not blob.write(write_chunk, offset):
-                        # EOF.
+                    if write_chunk:
+                        blob.write(write_chunk, offset)
+                    else:
                         return
+
                     offset += len(write_chunk)
+
                 if blob is not None and blob.isopen():
                     blob.close()
                 chunk_num += 1
