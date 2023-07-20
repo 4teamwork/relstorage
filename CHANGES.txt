@@ -1,5 +1,5 @@
-1.6.4 (unreleased)
-------------------
+1.6.3.post1 (2023-07-20)
+------------------------
 
 - Fix bug in oracles upload_blob method for cx_Oracle newer than 5.1.3.
 - Adjust Oracle connection setup, to support newer cx_oracle versions.
